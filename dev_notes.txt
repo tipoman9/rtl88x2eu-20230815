@@ -1,0 +1,50 @@
+
+#patch
+https://github.com/svpcom/rtl8812au/commit/014e7295408be508d9a318791aced263b89238ba
+
+enable in debug in autoconf.h
+#Compile from OpenIPC ./output folder
+make rtl88x2eu-openipc-rebuild
+
+# To CROSS_COMPILE
+export KDIR=/home/home/src/ssc30kq/builder/openipc/output/build/linux-custom
+export ARCH=arm
+export CROSS_COMPILE=/home/home/src/ssc30kq/builder/openipc/output/per-package/linux/host/bin/arm-openipc-linux-musleabihf-
+
+make ARCH=arm CROSS_COMPILE=$CROSS_COMPILE KSRC=$KDIR V=1
+
+arm-linux-gnueabihf-strip --strip-debug 8812eu.ko
+
+# WORKING ssc30kq
+rsync -a --delete /home/home/src/rtl88x2eu/rtl88x2eu-20230815/os_dep/ /home/home/src/ssc30kq/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/os_dep/
+rsync -a --delete /home/home/src/rtl88x2eu/rtl88x2eu-20230815/include/ /home/home/src/ssc30kq/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/include/
+rsync -a --delete /home/home/src/rtl88x2eu/rtl88x2eu-20230815/hal/ /home/home/src/ssc30kq/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/hal/
+rsync -a --delete /home/home/src/rtl88x2eu/rtl88x2eu-20230815/platform/ /home/home/src/ssc30kq/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/platform/
+rsync -a --delete /home/home/src/rtl88x2eu/rtl88x2eu-20230815/core/ /home/home/src/ssc30kq/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/core/
+scp -O  /home/home/src/ssc30kq/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/8812eu.ko root@192.168.1.88:/lib/modules/5.10.61/extra/8812eu.ko
+
+# WORKING ssc378
+rsync -a --delete /home/home/src/rtl88x2eu/rtl88x2eu-20230815/os_dep/ /home/home/src/ssc378/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/os_dep/
+rsync -a --delete /home/home/src/rtl88x2eu/rtl88x2eu-20230815/include/ /home/home/src/ssc378/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/include/
+rsync -a --delete /home/home/src/rtl88x2eu/rtl88x2eu-20230815/hal/ /home/home/src/ssc378/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/hal/
+rsync -a --delete /home/home/src/rtl88x2eu/rtl88x2eu-20230815/platform/ /home/home/src/ssc378/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/platform/
+rsync -a --delete /home/home/src/rtl88x2eu/rtl88x2eu-20230815/core/ /home/home/src/ssc378/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/core/
+scp -O  /home/home/src/ssc378/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/8812eu.ko root@192.168.1.88:/lib/modules/5.10.61/extra/8812eu.ko
+
+
+cd /home/home/src/ssc30kq/builder/openipc/output
+make rtl88x2eu-openipc-rebuild
+or
+make rtl88x2eu-openipc-build
+
+scp -O  /home/home/src/ssc30kq/builder/openipc/output/build/rtl88x2eu-openipc-HEAD/8812eu.ko root@192.168.1.88:/lib/modules/5.10.61/extra/8812eu.ko
+
+#on cam
+echo "5 5 1 5" > /proc/sys/kernel/printk
+echo "7 7 1 7" > /proc/sys/kernel/printk
+
+#tester.c
+/home/home/src/ssc378/builder/openipc/output/per-package/linux/host/bin/arm-openipc-linux-musleabihf-gcc tester.c -o tester -static
+
+rmmod 8812eu
+ modprobe 8812eu 'rtw_tx_pwr_by_rate=0' 'rtw_tx_pwr_lmt_enable=0' 'ShareTxBufLen=1'
